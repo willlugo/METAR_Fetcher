@@ -95,10 +95,27 @@ try:
         print("    Clouds:")
         clouds = metar["clouds"]
         for i in clouds:
-            feet = i["feet"]
-            code = i["code"]
-            text = i["text"]
-            print(f"        {feet:5} ft, {code:5}, {text}")
+            if "feet" in i:
+                feet = i["feet"]
+                if "code" in i:
+                    code = i["code"]
+                else:
+                    code = ""
+                if "text" in i:
+                    text = i["text"]
+                else:
+                    text = ""
+                print(f"        {feet:5} ft, {code:5}, {text}")
+            else:
+                if "code" in i:
+                    code = i["code"]
+                    if "text" in i:
+                        text = i["text"]
+                    else:
+                        text = ""
+                else:
+                    code = ""
+                print(f"        {code:5}, {text}")
     else:
         print("    No cloud information found")
 
