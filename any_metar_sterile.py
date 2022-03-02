@@ -1,149 +1,41 @@
 from argparse import MetavarTypeHelpFormatter
 import requests
-import json
+from datetime import datetime, timezone
+from time import sleep, perf_counter
 
+# Own Functions
+import weather_requests as wreq
+import weather_print as wprt
+from datform import datform
+
+# Key values
 API_KEY = ""
 BASE_URL = "https://api.checkwx.com/"
 
+# Get aerodrome identifier from user
 ICAO = input("Input ICAO: ").upper()
-hdr = {"X-API-Key": API_KEY}
 
-req = requests.get(f"https://api.checkwx.com/station/{ICAO}", headers=hdr)
+# GET AIRFIELD INFORMATION AND PRINT TO CONSOLE
+inf_req = wreq.get_information(BASE_URL,API_KEY,ICAO)
 try:
-    req.raise_for_status()
-    resp = req.json()
-    city = resp["data"][0]["city"]
-    country = resp["data"][0]["country"]["name"]
-    name = resp["data"][0]["name"]
-    elevation = resp["data"][0]["elevation"]["feet"]
-    coordinates = resp["data"][0]["geometry"]["coordinates"]
-
-    print(f"Information for ICAO: {ICAO}")
-    print(f"Aerodrome name: {name}")
-    print(f"Aerodrome location: {city}, {country}")
-    print(f"Longitude = {coordinates[0]} , Latitude = {coordinates[1]}")
-    print(f"Aerodrome elevation: {elevation} feet")
+    inf_req.raise_for_status()
+    info = inf_req.json()
+    wprt.print_information(info)
 except requests.exceptions.HTTPError as e:
     print(e)
 
-req = requests.get(f"https://api.checkwx.com/metar/{ICAO}/decoded", headers=hdr)
+# First METAR request
+# PRINT METAR TO CONSOLE
+met_req = wreq.get_metar(BASE_URL,API_KEY,ICAO)
 try:
-    req.raise_for_status()
-    response = req.json()
-    
-    if len(response["data"]) != 1:
-        print("\nNo METAR data found\n")
-        x = input("Press Enter to exit: ")
-        quit()
-    metar = response["data"][0]
-    
-    print(f"\nCurrent weather at {name}:")
-
-    observed = metar["observed"]
-    print(f"    Observed: {observed}")
-
-    if "wind" in metar:
-        print(f"    Wind:")
-        wind = metar["wind"]
-        if "degrees" in wind:
-            direc = str(wind["degrees"]).zfill(3)
-            print(f"        Direction: {direc:3} degrees")
-        else:
-            print("        No wind direction found")
-        if "speed_kts" in wind:
-            speed = wind["speed_kts"]
-            print(f"        Speed:     {speed:3} kts")
-        else:
-            print("        No wind speed information found")
-        if "gust_kts" in wind:
-            gust = wind["gust_kts"]
-            print(f"        Gusting:   {gust} kts")
-        else:
-            print("        No wind gust information found")
+    met_req.raise_for_status()
+    met_response = met_req.json()
+    if len(met_response["data"]) == 1:
+        metar = met_response["data"][0]
+        wprt.print_metar(metar)
     else:
-        print("    No wind information found")
-    
-    if "visibility" in metar:
-        vis = metar["visibility"]
-        if "meters" in vis:
-            vism = vis["meters"]
-            print(f"    Visibility: {vism} meters")
-    else:
-        print("    Visibility information not found")
-    
-    if "conditions" in metar:
-        conditions = metar["conditions"]
-        print("    Conditions:")
-        for i in conditions:
-            if "prefix" in i:
-                prefix = i["prefix"]
-            else:
-                prefix = ""
-            if "code" in i:
-                code = i["code"]
-            else:
-                code = ""
-            if "text" in i:
-                text = i["text"]
-            else:
-                text = ""
-            print(f"        {prefix:>3}{code:<4}, {text}")
-    else:
-        print("    No conditions information found")
-    
-    if "clouds" in metar:
-        print("    Clouds:")
-        clouds = metar["clouds"]
-        for i in clouds:
-            if "feet" in i:
-                feet = i["feet"]
-                if "code" in i:
-                    code = i["code"]
-                else:
-                    code = ""
-                if "text" in i:
-                    text = i["text"]
-                else:
-                    text = ""
-                print(f"        {feet:5} ft, {code:5}, {text}")
-            else:
-                if "code" in i:
-                    code = i["code"]
-                    if "text" in i:
-                        text = i["text"]
-                    else:
-                        text = ""
-                else:
-                    code = ""
-                print(f"        {code:5}, {text}")
-    else:
-        print("    No cloud information found")
-
-    if "barometer" in metar:
-        bar = metar["barometer"]
-        if "hpa" in bar:
-            bar_hpa = bar["hpa"]
-            print(f"    Barometer: {bar_hpa} hpa")
-    else:
-        print("    Barometer reading not found")
-    
-    if "temperature" in metar:
-        temperature = metar["temperature"]
-        if "celsius" in temperature:
-            temperature_c = temperature["celsius"]
-            print(f"    Temperature: {temperature_c} degrees celsius")
-
-    if "flight_category" in metar:
-        flight_category = metar["flight_category"]
-        print(f"    Current flight conditions: {flight_category}")
-    else:
-        print("    Flight condition code not found")
-    
-    raw_met = metar["raw_text"]
-    print("\n    Raw METAR:")
-    print(f"        {raw_met}")
-
-
+        dtnow = datform()
+        print(f"\nNo METAR data found: {dtnow}\n")
 except requests.exceptions.HTTPError as e:
     print(e)
 
