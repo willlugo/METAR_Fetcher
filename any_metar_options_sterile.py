@@ -24,7 +24,7 @@ inf_req = get_information(BASE_URL,API_KEY,ICAO)
 try:
     inf_req.raise_for_status()
     info = inf_req.json()
-    print_information(info)
+    name = print_information(info)
     stations[ICAO] = name
     save_stations(SAVED_STATIONS, stations)
 except requests.exceptions.HTTPError as e:

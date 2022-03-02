@@ -56,6 +56,7 @@ def print_information(info):
     print(f"Aerodrome location: {city}, {country}")
     print(f"Longitude = {coordinates[0]} , Latitude = {coordinates[1]}")
     print(f"Aerodrome elevation: {elevation} feet")
+    return name
 
 
 
