@@ -4,13 +4,13 @@ Simple project to use the checkWX API in order to fetch airfield information and
 Own API key needed
 
 Steps:
-Insert own API key into the program
-Ensure all internal modules are in the same directory as the program
-use pip to install all required external modules
-open command prompt to directory containing modules and program
-use pyinstaller to convert the program to an executable using the following syntax:
+Insert own API key into the program.
+Ensure all internal modules are in the same directory as the program.
+Use pip to install all required external modules.
+Open command prompt to directory containing modules and program.
+Use pyinstaller to convert the program to an executable using the following syntax:
     pyinstaller --onefile program_name.py
-exexutable file will be in a new dist directory
+Exexutable file will be in a new dist directory
 
 currently three modules:
     datform.py
