@@ -1,47 +1,28 @@
-from argparse import MetavarTypeHelpFormatter
-import requests
-import json
+# Own function
+from datform import datform
 
-API_KEY = ""
-BASE_URL = "https://api.checkwx.com/"
-
-ICAO = input("Input ICAO: ").upper()
-hdr = {"X-API-Key": API_KEY}
-
-req = requests.get(f"https://api.checkwx.com/station/{ICAO}", headers=hdr)
-try:
-    req.raise_for_status()
-    resp = req.json()
-    city = resp["data"][0]["city"]
-    country = resp["data"][0]["country"]["name"]
-    name = resp["data"][0]["name"]
-    elevation = resp["data"][0]["elevation"]["feet"]
-    coordinates = resp["data"][0]["geometry"]["coordinates"]
+def print_information(info):
+    global name
+    ICAO = info["data"][0]["icao"]
+    city = info["data"][0]["city"]
+    country = info["data"][0]["country"]["name"]
+    name = info["data"][0]["name"]
+    elevation = info["data"][0]["elevation"]["feet"]
+    coordinates = info["data"][0]["geometry"]["coordinates"]
 
     print(f"Information for ICAO: {ICAO}")
     print(f"Aerodrome name: {name}")
     print(f"Aerodrome location: {city}, {country}")
     print(f"Longitude = {coordinates[0]} , Latitude = {coordinates[1]}")
     print(f"Aerodrome elevation: {elevation} feet")
-except requests.exceptions.HTTPError as e:
-    print(e)
 
-req = requests.get(f"https://api.checkwx.com/metar/{ICAO}/decoded", headers=hdr)
-try:
-    req.raise_for_status()
-    response = req.json()
-    
-    if len(response["data"]) != 1:
-        print("\nNo METAR data found\n")
-        x = input("Press Enter to exit: ")
-        quit()
-    metar = response["data"][0]
-    
+
+
+
+def print_metar(metar):
     print(f"\nCurrent weather at {name}:")
-
     observed = metar["observed"]
     print(f"    Observed: {observed}")
-
     if "wind" in metar:
         print(f"    Wind:")
         wind = metar["wind"]
@@ -62,7 +43,6 @@ try:
             print("        No wind gust information found")
     else:
         print("    No wind information found")
-    
     if "visibility" in metar:
         vis = metar["visibility"]
         if "meters" in vis:
@@ -70,7 +50,6 @@ try:
             print(f"    Visibility: {vism} meters")
     else:
         print("    Visibility information not found")
-    
     if "conditions" in metar:
         conditions = metar["conditions"]
         print("    Conditions:")
@@ -90,7 +69,6 @@ try:
             print(f"        {prefix:>3}{code:<4}, {text}")
     else:
         print("    No conditions information found")
-    
     if "clouds" in metar:
         print("    Clouds:")
         clouds = metar["clouds"]
@@ -118,7 +96,6 @@ try:
                 print(f"        {code:5}, {text}")
     else:
         print("    No cloud information found")
-
     if "barometer" in metar:
         bar = metar["barometer"]
         if "hpa" in bar:
@@ -126,28 +103,18 @@ try:
             print(f"    Barometer: {bar_hpa} hpa")
     else:
         print("    Barometer reading not found")
-    
     if "temperature" in metar:
         temperature = metar["temperature"]
         if "celsius" in temperature:
             temperature_c = temperature["celsius"]
             print(f"    Temperature: {temperature_c} degrees celsius")
-
     if "flight_category" in metar:
         flight_category = metar["flight_category"]
         print(f"    Current flight conditions: {flight_category}")
     else:
         print("    Flight condition code not found")
-    
     raw_met = metar["raw_text"]
     print("\n    Raw METAR:")
     print(f"        {raw_met}")
-
-
-except requests.exceptions.HTTPError as e:
-    print(e)
-
-print("\n")
-x = None
-while x == None:
-    x = input("Press Enter to exit: ")
+    dtnow = datform()
+    print(f"\n    Last checked: {dtnow}\n\n")
