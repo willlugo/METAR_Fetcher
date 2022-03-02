@@ -38,3 +38,8 @@ try:
         print(f"\nNo METAR data found: {dtnow}\n")
 except requests.exceptions.HTTPError as e:
     print(e)
+
+print("\n")
+x = None
+while x == None:
+    x = input("Press Enter to exit: ")
