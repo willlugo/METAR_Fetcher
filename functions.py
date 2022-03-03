@@ -1,5 +1,46 @@
-# Own function
-from datform import datform
+from datetime import datetime, timezone
+import requests
+import json
+
+def getAPIkey():
+    try:
+        with open("API_KEY.json", "r") as f:
+            API_KEY = json.load(f)
+            return API_KEY
+    except Exception:
+        with open("API_KEY.json", "w") as f:
+            API_KEY = input("Input API key: ")
+            json.dump(API_KEY, f)
+            return API_KEY
+
+def save_stations(filepath, stations):
+    with open(filepath, "w") as f:
+        json.dump(stations, f)
+
+def load_stations(filepath):
+    try:
+        with open(filepath, "r") as f:
+            stations = json.load(f)
+            return stations
+    except:
+        return {}
+
+def datform():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+
+
+
+def get_information(BASE_URL,API_KEY,ICAO):
+    hdr = {"X-API-Key": API_KEY}
+    return requests.get(f"{BASE_URL}station/{ICAO}", headers=hdr)
+
+
+
+def get_metar(BASE_URL,API_KEY,ICAO):
+    hdr = {"X-API-Key": API_KEY}
+    return requests.get(f"{BASE_URL}metar/{ICAO}/decoded", headers=hdr)
+
+
 
 def print_information(info):
     global name
@@ -15,7 +56,7 @@ def print_information(info):
     print(f"Aerodrome location: {city}, {country}")
     print(f"Longitude = {coordinates[0]} , Latitude = {coordinates[1]}")
     print(f"Aerodrome elevation: {elevation} feet")
-
+    return name
 
 
 
