@@ -12,7 +12,7 @@ Use pyinstaller to convert the program to an executable using the following synt
     pyinstaller --onefile program_name.py
 Exexutable file will be in a new dist directory
 
-currently one modules:
+currently one module:
     functions.py
 
 three programs:
