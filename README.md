@@ -16,6 +16,6 @@ currently one modules:
     functions.py
 
 three programs:
-    any_metar_sterile.py
-    any_metar_options_sterile.py
-    updating_METAR_sterile.py
+    any_metar.py
+    any_metar_options.py
+    updating_METAR.py
